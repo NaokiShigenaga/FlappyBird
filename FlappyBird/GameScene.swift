@@ -21,6 +21,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let groundCategory: UInt32 = 1 << 1 // 0...00010
     let wallCategory:   UInt32 = 1 << 2 // 0...00100
     let scoreCategory:  UInt32 = 1 << 3 // 0...01000
+    
+    let itemCategory:   UInt32 = 1 << 4 // 0...10000
 
     
     //スコア用
@@ -316,7 +318,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // 衝突のカテゴリー設定
         bird.physicsBody?.categoryBitMask = birdCategory
         bird.physicsBody?.collisionBitMask = groundCategory | wallCategory
-        bird.physicsBody?.contactTestBitMask = groundCategory | wallCategory
+        bird.physicsBody?.contactTestBitMask = groundCategory | wallCategory | itemCategory
         
         //アニメーションを設定
         bird.run(flap)
@@ -328,6 +330,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //SKPhysicsContactDelegateのメソッド。衝突したときに呼ばれる
     func didBegin(_ contact: SKPhysicsContact) {
+        
         // ゲームオーバーのときは何もしない
         if scrollNode.speed <= 0 {
             return
@@ -347,6 +350,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 userDefaults.set(bestScore, forKey: "BEST")
                 userDefaults.synchronize()
             }
+            
+        }else if (contact.bodyA.categoryBitMask & itemCategory) == itemCategory || (contact.bodyB.categoryBitMask & itemCategory) == itemCategory {
+            
+            //アイテムスコア用の物体と衝突した
+            print("ItemScoreUp")
+            itemScore += 1
+            itemScoreLabelNode.text = "ItemScore:\(itemScore)"
+            
         } else {
             //壁か地面と衝突した
             print("GameOver")
@@ -406,11 +417,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // 鳥の画像サイズを取得
         let birdSize = SKTexture(imageNamed: "bird_a").size()
         
+        // 壁の画像サイズを取得
+        //let itemSize = SKTexture(imageNamed: "wall").size()
+        
         // 鳥が通り抜ける隙間の長さを鳥のサイズの3倍とする
         let slit_length2 = birdSize.height * 3
+        //let slit_length2 = itemSize.height * 3
         
         // 隙間位置の上下の振れ幅を鳥のサイズの3倍とする
         let random_y_range2 = birdSize.height * 6
+        //let random_y_range2 = itemSize.height * 3
         
         // 下の壁のY軸下限位置(中央位置から下方向の最大振れ幅で下の壁を表示する位置)を計算
         let groundSize = SKTexture(imageNamed: "ground").size()
@@ -432,6 +448,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             // アイテムを作成
             let eggItem = SKSpriteNode(texture: itemTexture)
             eggItem.position = CGPoint(x: 0, y: item_y)
+            
+            // スプライトに物理演算を設定する
+            eggItem.physicsBody = SKPhysicsBody(rectangleOf: itemTexture.size())
+            eggItem.physicsBody?.categoryBitMask = self.itemCategory
+            
+            // 衝突の時に動かないように設定する
+            eggItem.physicsBody?.isDynamic = false
             
             item.addChild(eggItem)
             
