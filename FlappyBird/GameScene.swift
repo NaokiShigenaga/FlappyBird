@@ -367,23 +367,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             
             //衝突したアイテムを消す
-            var firstBody, secondBody: SKPhysicsBody
-            
-            // firstを赤、secondを緑とする。
-            if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask {
-                firstBody = contact.bodyA
-                secondBody = contact.bodyB
-            } else {
-                firstBody = contact.bodyB
-                secondBody = contact.bodyA
+            if (contact.bodyA.categoryBitMask & itemCategory) == itemCategory {
+                contact.bodyA.node?.removeFromParent()
             }
-            
-            // 赤と緑が接したときの処理。
-            if firstBody.categoryBitMask & birdCategory != 0 &&
-                secondBody.categoryBitMask & itemCategory != 0 {
-                secondBody.node!.removeFromParent()
+            if (contact.bodyB.categoryBitMask & itemCategory) == itemCategory {
+                contact.bodyB.node?.removeFromParent()
             }
-            
             
             //アイテム取得効果音
             self.run(item_music)
