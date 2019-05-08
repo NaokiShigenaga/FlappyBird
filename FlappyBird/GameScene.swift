@@ -23,7 +23,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let scoreCategory:  UInt32 = 1 << 3 // 0...01000
     
     let itemCategory:   UInt32 = 1 << 4 // 0...10000
-
+    
     
     //スコア用
     var score = 0
@@ -35,13 +35,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var itemScore = 0
     var itemScoreLabelNode:SKLabelNode!
     
+    //効果音
+    //let music = SKAudioNode.init(fileNamed: "coin05.mp3", waitForCompletion: true)
+    let music: SKAction = SKAction.playSoundFileNamed("coin05.mp3", waitForCompletion: true)
+    
     //SKView上にシーンが表示されたときに呼ばれるメソッド
-     override func didMove(to view: SKView){
+    override func didMove(to view: SKView){
         
         //重力を設定
         physicsWorld.gravity = CGVector(dx: 0, dy: -4)
         physicsWorld.contactDelegate = self
-
+        
         
         //背景色を設定
         backgroundColor = UIColor(red: 0.15, green: 0.75, blue: 0.90, alpha: 1)
@@ -57,7 +61,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //アイテム用のノード
         itemNode = SKNode()
         scrollNode.addChild(itemNode)
-
+        
         //各種スプライトを生成する処理をメソッドに分割
         setupGround()
         setupCloud()
@@ -115,7 +119,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }else if bird.speed == 0 {
             restart()
         }
-    
+        
     }
     
     func setupGround() {
@@ -129,10 +133,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //スクロールするアクションを作成
         //左方向に画像一枚分スクロールさせるアクション
         let moveGround = SKAction.moveBy(x: -groundTexture.size().width , y: 0, duration: 5)
-
+        
         //元の位置に戻すアクション
         let resetGround = SKAction.moveBy(x: groundTexture.size().width, y: 0, duration: 0)
-
+        
         // 左にスクロール->元の位置->左にスクロールと無限に繰り返すアクション
         let repeatScrollGround = SKAction.repeatForever(SKAction.sequence([moveGround, resetGround]))
         
@@ -197,7 +201,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             // スプライトを追加する
             scrollNode.addChild(sprite)
-        
+            
         }
     }
     
@@ -243,7 +247,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let random_y = CGFloat.random(in: 0..<rendom_y_range)
             // Y軸の下限にランダムな値を足して、下の壁のY座標を決定
             let under_wall_y = under_wall_lowest_y + random_y
-
+            
             //下側の壁を作成
             let under = SKSpriteNode(texture: wallTexture)
             under.position = CGPoint(x: 0, y: under_wall_y)
@@ -308,7 +312,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // スプライトを作成
         bird = SKSpriteNode(texture: birdTextureA)
         bird.position = CGPoint(x: self.frame.size.width * 0.2, y:self.frame.size.height * 0.7)
-
+        
         //物理演算を設定
         bird.physicsBody = SKPhysicsBody(circleOfRadius: bird.size.height / 2)
         
@@ -357,6 +361,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             print("ItemScoreUp")
             itemScore += 1
             itemScoreLabelNode.text = "ItemScore:\(itemScore)"
+        
+            
+            
+            
+            //効果音
+            //self.addChild(music)
+            self.run(music)
+            
             
         } else {
             //壁か地面と衝突した
@@ -462,7 +474,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             self.itemNode.addChild(item)
         })
-
+        
         // 次のアイテム作成までの時間待ちのアクションを作成
         let waitAnimation = SKAction.wait(forDuration: 2)
         
@@ -470,10 +482,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let repeatForeverAnimation = SKAction.repeatForever(SKAction.sequence([createItemAnimation, waitAnimation]))
         
         wallNode.run(repeatForeverAnimation)
-        
-        
-        
-        
         
     }
 }
