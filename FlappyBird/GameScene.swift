@@ -36,8 +36,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var itemScoreLabelNode:SKLabelNode!
     
     //効果音
-    //let music = SKAudioNode.init(fileNamed: "coin05.mp3", waitForCompletion: true)
-    let music: SKAction = SKAction.playSoundFileNamed("coin05.mp3", waitForCompletion: true)
+    //アイテム取得音
+    let item_music: SKAction = SKAction.playSoundFileNamed("coin05.mp3", waitForCompletion: true)
+    
+    //ゲームオーバー
+    let gameover: SKAction = SKAction.playSoundFileNamed("gameover.mp3", waitForCompletion: true)
     
     //SKView上にシーンが表示されたときに呼ばれるメソッド
     override func didMove(to view: SKView){
@@ -361,18 +364,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             print("ItemScoreUp")
             itemScore += 1
             itemScoreLabelNode.text = "ItemScore:\(itemScore)"
-        
             
             
+            //衝突したアイテムを消す
+            var firstBody, secondBody: SKPhysicsBody
             
-            //効果音
-            //self.addChild(music)
-            self.run(music)
+            // firstを赤、secondを緑とする。
+            if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask {
+                firstBody = contact.bodyA
+                secondBody = contact.bodyB
+            } else {
+                firstBody = contact.bodyB
+                secondBody = contact.bodyA
+            }
+            
+            // 赤と緑が接したときの処理。
+            if firstBody.categoryBitMask & birdCategory != 0 &&
+                secondBody.categoryBitMask & itemCategory != 0 {
+                secondBody.node!.removeFromParent()
+            }
+            
+            
+            //アイテム取得効果音
+            self.run(item_music)
             
             
         } else {
             //壁か地面と衝突した
             print("GameOver")
+            
+            
+            //ゲームオーバー用効果音
+            self.run(gameover)
+            
             
             //スクロールを停止させる
             scrollNode.speed = 0
