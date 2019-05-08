@@ -489,10 +489,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         })
         
         // 次のアイテム作成までの時間待ちのアクションを作成
-        let waitAnimation = SKAction.wait(forDuration: 2)
+        let waitAnimation = SKAction.wait(forDuration: 1)
         
         // 壁を作成->時間待ち->壁を作成を無限に繰り返すアクションを作成
-        let repeatForeverAnimation = SKAction.repeatForever(SKAction.sequence([createItemAnimation, waitAnimation]))
+        let repeatForeverAnimation = SKAction.repeatForever(SKAction.sequence([waitAnimation, createItemAnimation, waitAnimation]))
         
         wallNode.run(repeatForeverAnimation)
         
